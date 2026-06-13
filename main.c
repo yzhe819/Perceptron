@@ -55,6 +55,23 @@ void layer_save_as_bin(Layer layer, const char *filename) {
   fclose(file);
 }
 
+void layer_load_from_bin(Layer layer, const char *filename) {
+  FILE *file = fopen(filename, "rb");
+  if (!file) {
+    fprintf(stderr, "Failed to open file %s\n", filename);
+    exit(1);
+  }
+
+  size_t n = fread(layer, sizeof(Layer), 1, file);
+  if (n != 1) {
+    fprintf(stderr, "Failed to read layer from %s\n", filename);
+    fclose(file);
+    exit(1);
+  }
+
+  fclose(file);
+}
+
 // draw the rect
 void layer_fill_rect(Layer layer, int x, int y, int w, int h, float value) {
   assert(w > 0 && h > 0);
@@ -199,11 +216,17 @@ int main(void) {
   int untrained = check_pass(inputs, weights);
 
   // do the training here
+  // do the training here
   for (int i = 0; i < TRAIN_PASSES; i++) {
     srand(TRAIN_SEED);
     int count = train_pass(inputs, weights);
     // holy shit, the adjusted count will convergert to zero!!
     printf("[TRAIN - %d] Adjusted %d times\n", i, count);
+
+    // save the weights as a ppm image after this pass
+    char filename[64];
+    snprintf(filename, sizeof(filename), "data/%d.ppm", i);
+    layer_save_as_ppm(weights, filename);
   }
 
   // move to check if this model works or not
