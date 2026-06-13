@@ -34,10 +34,14 @@ void layer_save_as_ppm(Layer layer, const char *filename) {
   fprintf(file, "P6\n%d %d\n255\n", WIDTH * PPM_SCALAR, HEIGHT * PPM_SCALAR);
   for (int y = 0; y < HEIGHT * PPM_SCALAR; y++) {
     for (int x = 0; x < WIDTH * PPM_SCALAR; x++) {
-      // layer value -> based on the related different (max, min) -> scalar
       float s = (layer[y / PPM_SCALAR][x / PPM_SCALAR] - min) / (max - min);
-      char pixel[3] = {(char)floorf(255 * (1.0f - s)), (char)floorf(255 * s),
-                       0};
+
+      // Purple (139, 92, 246) -> Yellow (252, 211, 77)
+      unsigned char r = (unsigned char)floorf(139 + s * (252 - 139));
+      unsigned char g = (unsigned char)floorf(92 + s * (211 - 92));
+      unsigned char b = (unsigned char)floorf(246 + s * (77 - 246));
+
+      char pixel[3] = {(char)r, (char)g, (char)b};
       fwrite(pixel, sizeof(pixel), 1, file);
     }
   }
