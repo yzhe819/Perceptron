@@ -84,6 +84,16 @@ The `Adjusted` count printed each round gradually converges toward zero.
 
 However, the improvement is limited (only 12.5%), because a perceptron has only **one layer of weights** and can only learn a very simple linear decision rule.
 
+## Usage
+
+```bash
+# Build
+bash build.sh
+
+# Run
+./main
+```
+
 ## Summary
 
 > A perceptron is essentially a bunch of weighted switches. The weights are continuously adjusted through "trial and error," eventually allowing the system to make correct judgments about its inputs. Stacking and connecting multiple perceptrons together forms a real neural network.
