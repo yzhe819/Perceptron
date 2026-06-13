@@ -8,23 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WIDTH 50
-#define HEIGHT 50
-#define PPM_SCALAR 25
-#define BIAS 10
-#define SAMPLE_SIZE 1000
-#define TRAIN_PASSES 150
-
-typedef float Layer[HEIGHT][WIDTH];
-
-static inline int clampi(int value, int min, int max) {
-  return value < min ? min : value > max ? max : value;
-}
-
-static inline int rand_range(int low, int high) {
-  assert(low < high);
-  return rand() % (high - low) + low;
-}
+#include "config.h"
+#include "number.h"
 
 // ppm image format rather than png image
 // use to make the layer human readable
@@ -44,7 +29,7 @@ void layer_save_as_ppm(Layer layer, const char *filename) {
   FILE *file = fopen(filename, "wb");
   if (!file) {
     fprintf(stderr, "Failed to open file %s\n", filename);
-    return;
+    exit(1);
   }
   fprintf(file, "P6\n%d %d\n255\n", WIDTH * PPM_SCALAR, HEIGHT * PPM_SCALAR);
   for (int y = 0; y < HEIGHT * PPM_SCALAR; y++) {
@@ -210,19 +195,19 @@ int check_pass(Layer inputs, Layer weights) {
 // only single output neuron
 int main(void) {
 
-  srand(420); // use different srand
+  srand(CHECK_SEED); // use different srand
   int untrained = check_pass(inputs, weights);
 
   // do the training here
   for (int i = 0; i < TRAIN_PASSES; i++) {
-    srand(69);
+    srand(TRAIN_SEED);
     int count = train_pass(inputs, weights);
     // holy shit, the adjusted count will convergert to zero!!
     printf("[TRAIN - %d] Adjusted %d times\n", i, count);
   }
 
   // move to check if this model works or not
-  srand(420); // use different srand
+  srand(CHECK_SEED); // use different srand
   int trained = check_pass(inputs, weights);
 
   // result
@@ -230,8 +215,14 @@ int main(void) {
   printf("The fail rate of untrained model is %f\n",
          untrained / (SAMPLE_SIZE * 2.0));
   printf("The trained model failed %d times\n", trained);
-  printf("The fail rate of untrained model is %f\n",
+  printf("The fail rate of trained model is %f\n",
          trained / (SAMPLE_SIZE * 2.0));
+
+  double untrained_rate = untrained / (SAMPLE_SIZE * 2.0);
+  double trained_rate = trained / (SAMPLE_SIZE * 2.0);
+  double improvement = (untrained_rate - trained_rate) / untrained_rate * 100.0;
+
+  printf("Improvement after training: %.2f%%\n", improvement);
 
   return 0;
 }
