@@ -5,9 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WIDTH 100
-#define HEIGHT 100
+#define WIDTH 50
+#define HEIGHT 50
 #define PPM_SCALAR 25
+#define SAMPLE_SIZE 10
 
 typedef float Layer[HEIGHT][WIDTH];
 
@@ -32,6 +33,17 @@ void layer_save_as_ppm(Layer layer, const char *filename) {
       fwrite(pixel, sizeof(pixel), 1, file);
     }
   }
+  fclose(file);
+}
+
+void layer_save_as_bin(Layer layer, const char *filename) {
+  FILE *file = fopen(filename, "wb");
+  if (!file) {
+    fprintf(stderr, "Failed to open file %s\n", filename);
+    exit(1);
+  }
+
+  fwrite(layer, sizeof(Layer), 1, file);
   fclose(file);
 }
 
@@ -84,19 +96,41 @@ float infer(Layer input, Layer weights) {
 }
 
 static Layer inputs;
-static Layer weights;
+// static Layer weights;
+
+int rand_range(int low, int high) {
+  assert(low < high);
+  return rand() % (high - low) + low;
+}
 
 // only single output neuron
 int main(void) {
-  printf("Hello, World!\n");
+  char file_path[256];
 
-  layer_fill_rect(inputs, 0, 0, WIDTH / 2, HEIGHT / 2, 1.0f);
-  layer_save_as_ppm(inputs, "rect.ppm");
+  for (int i = 0; i < SAMPLE_SIZE; i++) {
 
-  layer_fill_circle(weights, WIDTH / 2, HEIGHT / 2, WIDTH / 2, 1.0f);
-  layer_save_as_ppm(weights, "circle.ppm");
+    printf("[INFO] generating rect-%02d.bin\n", i);
+    layer_fill_rect(inputs, 0, 0, WIDTH, HEIGHT, 0.0f);
+    int x = rand_range(0, WIDTH);
+    int y = rand_range(0, HEIGHT);
+    int w = rand_range(1, WIDTH);
+    int h = rand_range(1, HEIGHT);
+    layer_fill_rect(inputs, x, y, w, h, 1.0f);
+    snprintf(file_path, sizeof(file_path), "rect-%02d.bin", i);
+    layer_save_as_bin(inputs, file_path);
+    snprintf(file_path, sizeof(file_path), "rect-%02d.ppm", i);
+    layer_save_as_ppm(inputs, file_path);
+  }
+
+  //   layer_fill_rect(inputs, 0, 0, WIDTH / 2, HEIGHT / 2, 1.0f);
+  //   layer_save_as_ppm(inputs, "rect.ppm");
+  //   layer_save_as_bin(inputs, "input.bin");
+
+  //   layer_fill_circle(weights, WIDTH / 2, HEIGHT / 2, WIDTH / 2, 1.0f);
+  //   layer_save_as_ppm(weights, "circle.ppm");
   //   float output = infer(inputs, weights);
   //   printf("Output: %f\n", output);
 
+  printf("Hello, World!\n");
   return 0;
 }
