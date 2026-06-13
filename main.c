@@ -1,7 +1,9 @@
 #include <assert.h>
 #include <errno.h>
+#include <float.h>
 #include <limits.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,8 +11,9 @@
 #define WIDTH 50
 #define HEIGHT 50
 #define PPM_SCALAR 25
-#define SAMPLE_SIZE 100
-#define BIAS 20
+#define BIAS 10
+#define SAMPLE_SIZE 500
+#define TRAIN_PASSES 100
 
 typedef float Layer[HEIGHT][WIDTH];
 
@@ -26,6 +29,18 @@ static inline int rand_range(int low, int high) {
 // ppm image format rather than png image
 // use to make the layer human readable
 void layer_save_as_ppm(Layer layer, const char *filename) {
+  float min = FLT_MAX;
+  float max = FLT_MIN;
+
+  for (int y = 0; y < HEIGHT; y++) {
+    for (int x = 0; x < WIDTH; x++) {
+      if (layer[y][x] < min)
+        min = layer[y][x];
+      if (layer[y][x] > max)
+        max = layer[y][x];
+    }
+  }
+
   FILE *file = fopen(filename, "wb");
   if (!file) {
     fprintf(stderr, "Failed to open file %s\n", filename);
@@ -34,9 +49,10 @@ void layer_save_as_ppm(Layer layer, const char *filename) {
   fprintf(file, "P6\n%d %d\n255\n", WIDTH * PPM_SCALAR, HEIGHT * PPM_SCALAR);
   for (int y = 0; y < HEIGHT * PPM_SCALAR; y++) {
     for (int x = 0; x < WIDTH * PPM_SCALAR; x++) {
-      // layer value -> scalar
-      float s = layer[y / PPM_SCALAR][x / PPM_SCALAR];
-      char pixel[3] = {(char)floorf(s * 255), 0, 0};
+      // layer value -> based on the related different (max, min) -> scalar
+      float s = (layer[y / PPM_SCALAR][x / PPM_SCALAR] - min) / (max - min);
+      char pixel[3] = {(char)floorf(255 * (1.0f - s)), (char)floorf(255 * s),
+                       0};
       fwrite(pixel, sizeof(pixel), 1, file);
     }
   }
@@ -157,21 +173,35 @@ void sub_input_from_weights(Layer inputs, Layer weights) {
 static Layer inputs;
 static Layer weights;
 
-// only single output neuron
-int main(void) {
-  srand(69);
-
+int train_pass(Layer inputs, Layer weights) {
+  int adjusted = 0;
   for (int i = 0; i < SAMPLE_SIZE; i++) {
     layer_random_rect(inputs);
     if (infer(inputs, weights) > BIAS) {
       sub_input_from_weights(inputs, weights);
+      adjusted++;
     }
 
     layer_random_circle(inputs);
     if (infer(inputs, weights) < BIAS) {
       add_input_from_weights(inputs, weights);
+      adjusted++;
     }
   }
+  return adjusted;
+}
+
+// only single output neuron
+int main(void) {
+  for (int i = 0; i < TRAIN_PASSES; i++) {
+    srand(69);
+    int adjusted = train_pass(
+        inputs,
+        weights); // holy shit, the adjusted count will convergert to zero!!
+    printf("%d\n", adjusted);
+  }
+
+  layer_save_as_ppm(weights, "weights.ppm");
 
   return 0;
 }
