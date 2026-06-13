@@ -1,15 +1,15 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define WIDTH 50
-#define HEIGHT 50
+#define WIDTH 80
+#define HEIGHT 80
 
-#define BIAS 10
+#define BIAS 20
 
 #define PPM_SCALAR 25
 
-#define SAMPLE_SIZE 1000
-#define TRAIN_PASSES 150
+#define SAMPLE_SIZE 500
+#define TRAIN_PASSES 40
 
 #define TRAIN_SEED 69
 #define CHECK_SEED 420
