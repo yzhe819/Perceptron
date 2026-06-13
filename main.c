@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <errno.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,19 +15,23 @@ static inline int clampi(int value, int min, int max) {
 }
 
 // ppm image format rather than png image
+// use to make the layer human readable
 void layer_save_as_ppm(Layer layer, const char *filename) {
-  FILE *file = fopen(filename, "w");
+  FILE *file = fopen(filename, "wb");
   if (!file) {
     fprintf(stderr, "Failed to open file %s\n", filename);
     return;
   }
-  fprintf(file, "P3\n%d %d\n255\n", WIDTH, HEIGHT);
+  fprintf(file, "P6\n%d %d\n255\n", WIDTH, HEIGHT);
   for (int y = 0; y < HEIGHT; y++) {
     for (int x = 0; x < WIDTH; x++) {
-      fprintf(file, "%d %d %d\n", (int)(layer[y][x] * 255),
-              (int)(layer[y][x] * 255), (int)(layer[y][x] * 255));
+      // layer value -> scalar
+      float s = layer[y][x];
+      char pixel[3] = {(char)floorf(s * 255), 0, 0};
+      fwrite(pixel, sizeof(pixel), 1, file);
     }
   }
+  fclose(file);
 }
 
 void layer_fill_rect(Layer layer, int x, int y, int w, int h, float value) {
@@ -60,22 +65,16 @@ float infer(Layer input, Layer weights) {
 }
 
 static Layer inputs;
-static Layer weights;
-
-int main(void) {
-  errno = 69;
-  printf("Error: %s\n", strerror(errno));
-  return 0;
-}
+// static Layer weights;
 
 // only single output neuron
-int main2(void) {
+int main(void) {
   printf("Hello, World!\n");
 
   layer_fill_rect(inputs, 0, 0, WIDTH / 2, HEIGHT / 2, 1.0f);
-
-  float output = infer(inputs, weights);
-  printf("Output: %f\n", output);
+  layer_save_as_ppm(inputs, "inputs.ppm");
+  //   float output = infer(inputs, weights);
+  //   printf("Output: %f\n", output);
 
   return 0;
 }
