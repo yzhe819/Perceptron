@@ -12,8 +12,8 @@
 #define HEIGHT 50
 #define PPM_SCALAR 25
 #define BIAS 10
-#define SAMPLE_SIZE 500
-#define TRAIN_PASSES 100
+#define SAMPLE_SIZE 1000
+#define TRAIN_PASSES 150
 
 typedef float Layer[HEIGHT][WIDTH];
 
@@ -191,17 +191,47 @@ int train_pass(Layer inputs, Layer weights) {
   return adjusted;
 }
 
+int check_pass(Layer inputs, Layer weights) {
+  int adjusted = 0;
+  for (int i = 0; i < SAMPLE_SIZE; i++) {
+    layer_random_rect(inputs);
+    if (infer(inputs, weights) > BIAS) {
+      adjusted++;
+    }
+
+    layer_random_circle(inputs);
+    if (infer(inputs, weights) < BIAS) {
+      adjusted++;
+    }
+  }
+  return adjusted;
+}
+
 // only single output neuron
 int main(void) {
+
+  srand(420); // use different srand
+  int untrained = check_pass(inputs, weights);
+
+  // do the training here
   for (int i = 0; i < TRAIN_PASSES; i++) {
     srand(69);
-    int adjusted = train_pass(
-        inputs,
-        weights); // holy shit, the adjusted count will convergert to zero!!
-    printf("%d\n", adjusted);
+    int count = train_pass(inputs, weights);
+    // holy shit, the adjusted count will convergert to zero!!
+    printf("[TRAIN - %d] Adjusted %d times\n", i, count);
   }
 
-  layer_save_as_ppm(weights, "weights.ppm");
+  // move to check if this model works or not
+  srand(420); // use different srand
+  int trained = check_pass(inputs, weights);
+
+  // result
+  printf("The untrained model failed %d times\n", untrained);
+  printf("The fail rate of untrained model is %f\n",
+         untrained / (SAMPLE_SIZE * 2.0));
+  printf("The trained model failed %d times\n", trained);
+  printf("The fail rate of untrained model is %f\n",
+         trained / (SAMPLE_SIZE * 2.0));
 
   return 0;
 }
