@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WIDTH 20
-#define HEIGHT 20
-#define PPM_SCALAR 50
+#define WIDTH 100
+#define HEIGHT 100
+#define PPM_SCALAR 25
 
 typedef float Layer[HEIGHT][WIDTH];
 
@@ -35,8 +35,8 @@ void layer_save_as_ppm(Layer layer, const char *filename) {
   fclose(file);
 }
 
+// draw the rect
 void layer_fill_rect(Layer layer, int x, int y, int w, int h, float value) {
-
   assert(w > 0 && h > 0);
   int x0 = clampi(x, 0, WIDTH - 1);
   int y0 = clampi(y, 0, HEIGHT - 1);
@@ -46,6 +46,24 @@ void layer_fill_rect(Layer layer, int x, int y, int w, int h, float value) {
   for (int x = x0; x <= x1; x++) {
     for (int y = y0; y <= y1; y++) {
       layer[y][x] = value;
+    }
+  }
+}
+
+// draw the cicle
+void layer_fill_circle(Layer layer, int cx, int cy, int r, float value) {
+  assert(r > 0);
+  int x0 = clampi(cx - r, 0, WIDTH - 1);
+  int y0 = clampi(cy - r, 0, HEIGHT - 1);
+  int x1 = clampi(cx + r, 0, WIDTH - 1);
+  int y1 = clampi(cy + r, 0, HEIGHT - 1);
+  for (int y = y0; y <= y1; ++y) {
+    for (int x = x0; x <= x1; ++x) {
+      int dx = x - cx;
+      int dy = y - cy;
+      if (dx * dx + dy * dy <= r * r) {
+        layer[y][x] = value;
+      }
     }
   }
 }
@@ -66,14 +84,17 @@ float infer(Layer input, Layer weights) {
 }
 
 static Layer inputs;
-// static Layer weights;
+static Layer weights;
 
 // only single output neuron
 int main(void) {
   printf("Hello, World!\n");
 
   layer_fill_rect(inputs, 0, 0, WIDTH / 2, HEIGHT / 2, 1.0f);
-  layer_save_as_ppm(inputs, "inputs.ppm");
+  layer_save_as_ppm(inputs, "rect.ppm");
+
+  layer_fill_circle(weights, WIDTH / 2, HEIGHT / 2, WIDTH / 2, 1.0f);
+  layer_save_as_ppm(weights, "circle.ppm");
   //   float output = infer(inputs, weights);
   //   printf("Output: %f\n", output);
 

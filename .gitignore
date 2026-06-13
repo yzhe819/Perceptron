@@ -53,3 +53,5 @@ CMakeUserPresets.json
 
 main
 data/
+rect.ppm
+circle.ppm
