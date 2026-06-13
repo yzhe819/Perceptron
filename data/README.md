@@ -1,5 +1,7 @@
 # 感知机原理 (Perceptron)
 
+手搓了一个感知机(神经网络最基本的单元)
+
 ## 这是什么?
 
 感知机(Perceptron)是神经网络最基础的组成单元,由 Frank Rosenblatt 在1957年提出。
@@ -9,7 +11,9 @@
 
 下图展示了权重矩阵在训练过程中的演化过程(每一帧对应一轮训练后的权重图):
 
-![训练演化](output.gif)
+<p align="center">
+  <img src="./output.gif" alt="Training Evolution" width="400" height="400">
+</p>
 
 权重图使用紫色到黄色的渐变表示:
 
@@ -83,3 +87,7 @@ Improvement after training: 12.50%
 > 感知机就是一堆带权重的开关,权重通过"试错-修正"不断调整,最终让整个系统学会对输入做出正确的判断。多个感知机叠加、连接,就构成了真正的神经网络。
 
 或许这就是硅基生物长出脑子的第一步？
+
+## 致谢
+
+本项目的代码结构与实现思路参考自 [tsoding/perceptron](https://github.com/tsoding/perceptron),感谢原作者的开源分享。
