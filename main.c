@@ -9,7 +9,8 @@
 #define WIDTH 50
 #define HEIGHT 50
 #define PPM_SCALAR 25
-#define SAMPLE_SIZE 10
+#define SAMPLE_SIZE 100
+#define BIAS 20
 
 typedef float Layer[HEIGHT][WIDTH];
 
@@ -135,33 +136,42 @@ float infer(Layer input, Layer weights) {
   return output;
 }
 
+// excited
+void add_input_from_weights(Layer inputs, Layer weights) {
+  for (int y = 0; y < HEIGHT; y++) {
+    for (int x = 0; x < WIDTH; x++) {
+      weights[y][x] += inputs[y][x];
+    }
+  }
+}
+
+// suppress
+void sub_input_from_weights(Layer inputs, Layer weights) {
+  for (int y = 0; y < HEIGHT; y++) {
+    for (int x = 0; x < WIDTH; x++) {
+      weights[y][x] -= inputs[y][x];
+    }
+  }
+}
+
 static Layer inputs;
-// static Layer weights;
+static Layer weights;
 
 // only single output neuron
 int main(void) {
-  char file_path[256];
+  srand(69);
 
-#define PREFIX "rect"
   for (int i = 0; i < SAMPLE_SIZE; i++) {
-    printf("[INFO] generating " PREFIX "-%02d.bin\n", i);
     layer_random_rect(inputs);
+    if (infer(inputs, weights) > BIAS) {
+      sub_input_from_weights(inputs, weights);
+    }
 
-    snprintf(file_path, sizeof(file_path), "" PREFIX "-%02d.bin", i);
-    layer_save_as_bin(inputs, file_path);
-    snprintf(file_path, sizeof(file_path), "" PREFIX "-%02d.ppm", i);
-    layer_save_as_ppm(inputs, file_path);
+    layer_random_circle(inputs);
+    if (infer(inputs, weights) < BIAS) {
+      add_input_from_weights(inputs, weights);
+    }
   }
 
-  //   layer_fill_rect(inputs, 0, 0, WIDTH / 2, HEIGHT / 2, 1.0f);
-  //   layer_save_as_ppm(inputs, "rect.ppm");
-  //   layer_save_as_bin(inputs, "input.bin");
-
-  //   layer_fill_circle(weights, WIDTH / 2, HEIGHT / 2, WIDTH / 2, 1.0f);
-  //   layer_save_as_ppm(weights, "circle.ppm");
-  //   float output = infer(inputs, weights);
-  //   printf("Output: %f\n", output);
-
-  printf("Hello, World!\n");
   return 0;
 }
