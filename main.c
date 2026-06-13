@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,11 @@ typedef float Layer[HEIGHT][WIDTH];
 
 static inline int clampi(int value, int min, int max) {
   return value < min ? min : value > max ? max : value;
+}
+
+static inline int rand_range(int low, int high) {
+  assert(low < high);
+  return rand() % (high - low) + low;
 }
 
 // ppm image format rather than png image
@@ -80,6 +86,40 @@ void layer_fill_circle(Layer layer, int cx, int cy, int r, float value) {
   }
 }
 
+void layer_random_rect(Layer layer) {
+  layer_fill_rect(layer, 0, 0, WIDTH, HEIGHT, 0.0f);
+  int x = rand_range(0, WIDTH);
+  int y = rand_range(0, HEIGHT);
+  int w = WIDTH - x;
+  if (w < 2)
+    w = 2;
+  w = rand_range(1, w);
+  int h = HEIGHT - x;
+  if (h < 2)
+    h = 2;
+  h = rand_range(1, h);
+  layer_fill_rect(layer, x, y, w, h, 1.0f);
+}
+
+void layer_random_circle(Layer layer) {
+  layer_fill_rect(layer, 0, 0, WIDTH, HEIGHT, 0.0f);
+  int cx = rand_range(0, WIDTH);
+  int cy = rand_range(0, HEIGHT);
+  int r = INT_MAX;
+  if (r > cx)
+    r = cx;
+  if (r > cy)
+    r = cy;
+  if (r > WIDTH - cx)
+    r = WIDTH - cx;
+  if (r > HEIGHT - cy)
+    r = HEIGHT - cy;
+  if (r < 2) // too small circle handle
+    r = 2;
+  r = rand_range(1, r);
+  layer_fill_circle(layer, cx, cy, r, 1.0f);
+}
+
 // apply weights to input and return the output
 // the input in c will be come pointer of floot array
 // pointer -> float *[WIDTH]
@@ -98,27 +138,18 @@ float infer(Layer input, Layer weights) {
 static Layer inputs;
 // static Layer weights;
 
-int rand_range(int low, int high) {
-  assert(low < high);
-  return rand() % (high - low) + low;
-}
-
 // only single output neuron
 int main(void) {
   char file_path[256];
 
+#define PREFIX "rect"
   for (int i = 0; i < SAMPLE_SIZE; i++) {
+    printf("[INFO] generating " PREFIX "-%02d.bin\n", i);
+    layer_random_rect(inputs);
 
-    printf("[INFO] generating rect-%02d.bin\n", i);
-    layer_fill_rect(inputs, 0, 0, WIDTH, HEIGHT, 0.0f);
-    int x = rand_range(0, WIDTH);
-    int y = rand_range(0, HEIGHT);
-    int w = rand_range(1, WIDTH);
-    int h = rand_range(1, HEIGHT);
-    layer_fill_rect(inputs, x, y, w, h, 1.0f);
-    snprintf(file_path, sizeof(file_path), "rect-%02d.bin", i);
+    snprintf(file_path, sizeof(file_path), "" PREFIX "-%02d.bin", i);
     layer_save_as_bin(inputs, file_path);
-    snprintf(file_path, sizeof(file_path), "rect-%02d.ppm", i);
+    snprintf(file_path, sizeof(file_path), "" PREFIX "-%02d.ppm", i);
     layer_save_as_ppm(inputs, file_path);
   }
 
