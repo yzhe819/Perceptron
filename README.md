@@ -1,2 +1,2 @@
 # Perceptron
-🤖 First Ancient Neural Network in C
+🦾 First Ancient Neural Network in C

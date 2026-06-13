@@ -1,0 +1,55 @@
+# Compiled object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Compiled dynamic/shared libraries
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Compiled static libraries
+*.a
+*.lib
+
+# Executables / binaries
+*.out
+*.exe
+*.app
+a.out
+
+# Build directories
+build/
+bin/
+out/
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Makefile generated files
+Makefile.in
+config.log
+config.status
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CMakeUserPresets.json
+
+# Editor / IDE files
+.vscode/
+.idea/
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+main
+data/
