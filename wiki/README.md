@@ -1,5 +1,7 @@
 # 感知机原理 (Perceptron)
 
+[English](https://github.com/yzhe819/Perceptron/blob/main/README.md) | [中文](https://github.com/yzhe819/Perceptron/blob/main/wiki/README.md)
+
 手搓了一个感知机(神经网络最基本的单元)
 
 ## 这是什么?
@@ -97,6 +99,12 @@ bash build.sh
 > 感知机就是一堆带权重的开关,权重通过"试错-修正"不断调整,最终让整个系统学会对输入做出正确的判断。多个感知机叠加、连接,就构成了真正的神经网络。
 
 或许这就是硅基生物长出脑子的第一步？
+
+## 相关阅读
+
+- [博客文章](https://yzhe819.github.io/posts/perceptron-in-c/) — 用 C 从零实现感知机
+- [感知机 — 一种感知与识别自动机](https://websites.umass.edu/brain-wars/1957-the-birth-of-cognitive-science/the-perceptron-a-perceiving-and-recognizing-automaton/) — 麻省大学阿默斯特分校
+- [原始论文](https://arxiv.org/pdf/1701.08884v1) — Frank Rosenblatt, 1957
 
 ## 致谢
 

@@ -1,5 +1,7 @@
 # Perceptron
 
+[English](https://github.com/yzhe819/Perceptron/blob/main/README.md) | [中文](https://github.com/yzhe819/Perceptron/blob/main/wiki/README.md)
+
 🦾 Built a Perceptron from Scratch in C (the most basic unit of a neural network)
 
 ## What is this?
@@ -99,6 +101,13 @@ bash build.sh
 > A perceptron is essentially a bunch of weighted switches. The weights are continuously adjusted through "trial and error," eventually allowing the system to make correct judgments about its inputs. Stacking and connecting multiple perceptrons together forms a real neural network.
 
 Perhaps this is the first step toward silicon-based life growing a brain?
+
+
+## Further Reading
+
+- [Blog Post](https://yzhe819.github.io/posts/perceptron-in-c/) — Built a Perceptron from Scratch in C
+- [The Perceptron — A Perceiving and Recognizing Automaton](https://websites.umass.edu/brain-wars/1957-the-birth-of-cognitive-science/the-perceptron-a-perceiving-and-recognizing-automaton/) — University of Massachusetts Amherst
+- [Original Paper](https://arxiv.org/pdf/1701.08884v1) — Frank Rosenblatt, 1957
 
 ## Acknowledgements
 
